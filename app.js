@@ -83,7 +83,7 @@ YUI().use("json","substitute",function(Y){
             } 
         });
     };
-    
+    // TODO: Better error nessages.
     var addJob = function(path, profileID, deleteSource, cb){
         cb = cb || function(){};
         validatePath(path,function(check){
