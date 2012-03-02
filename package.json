@@ -4,15 +4,15 @@
 	"description": "Handbrake Server",
 	"version": "0.0.1",
 	"engines": {
-		"node": "0.4.x"
+		"node": "0.6.x"
 	},
 	"dependencies": {
-		"express": "2.4.x",
-		"connect": "1.6.x",
+		"express": "2.5.x",
+		"connect": "1.8.x",
 		"mime": "1.2.x",
 		"jade": "0.14.x",
-		"yui3": "0.6.x",
-		"yui3-core": "3.3.x",
-		"jsdom": "0.2.3"
+		"yui3": "0.7.x",
+		"yui3-core": "3.4.x",
+		"jsdom": "0.2.7"
 	}
 }
