@@ -34,7 +34,7 @@ app.configure('production', function(){
 // Routes
 
 YUI().use("json","substitute",function(Y){
-    
+    //  Can you change folders?
     var rootFolder = "/storage/Video",
         outputFolder = "/storage/Video",
         profiles = {
@@ -83,7 +83,7 @@ YUI().use("json","substitute",function(Y){
             } 
         });
     };
-    // TODO: Better error nessages.
+
     var addJob = function(path, profileID, deleteSource, cb){
         cb = cb || function(){};
         validatePath(path,function(check){
@@ -96,6 +96,7 @@ YUI().use("json","substitute",function(Y){
                 }
                 var job = new Job(path, profileID);
                 if(job.sourcePath.indexOf(rootFolder) !== 0){
+                    // TODO: Better error nessages. What does this mean?
                     cb({success:false,msg:"Path not in within root path"});
                     return;
                 }
@@ -280,7 +281,7 @@ YUI().use("json","substitute",function(Y){
             }
         });
     };
-    
+    // TODO: Better error nessages.
     var validatePath = function(path,callback){
         callback = callback || function(){};
         if(!path){
@@ -299,7 +300,7 @@ YUI().use("json","substitute",function(Y){
             }
         });
     };
-    
+
     var addFolder = function(path, profile, deleteSource, cb){
         cb = cb || function(){};
         var check = validatePath(path,function(check){
@@ -324,6 +325,7 @@ YUI().use("json","substitute",function(Y){
                             });
                         });
                     }else{
+                        // TODO: Must be of type X?
                         cb([{success:false,msg:"No suitable files found"}]);
                     }
                 });
