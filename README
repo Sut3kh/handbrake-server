@@ -1,4 +1,6 @@
 Hand Brake Server
 ======================
 
-A node based http server front end for hand break that allows queing and proccessing profiles.
+A node based http server front end for hand break that allows queueing and processing profiles.
+
+Requires HandBrakeCLI.

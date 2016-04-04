@@ -1,7 +1,7 @@
 {
 	"author": "Jesse Foltz",
 	"name": "handbrake-server",
-	"description": "Handbrake Server",
+	"description": "Handbrake Server. Requires HandBrake cli to be installed.",
 	"version": "0.0.1",
 	"engines": {
 		"node": "4.2.6"
