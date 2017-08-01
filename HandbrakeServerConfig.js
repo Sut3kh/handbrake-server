@@ -17,6 +17,7 @@ HandbrakeServerConfig.profiles = {
   "ipad":"-i {inputFile} -o {outputFile}.mp4  -e x264 -q 20.0 -r 29.97 --pfr  -a 1 -E faac -B 160 -6 dpl2 -R Auto -D 0.0 -f mp4 -4 -X 1024 --loose-anamorphic -m",
   "apple-tv":"-i {inputFile} -o {outputFile}.mp4  -e x264 -q 20.0 -a 1,1 -E faac,copy:ac3 -B 160,160 -6 dpl2,auto -R Auto,Auto -D 0.0,0.0 -f mp4 -4 -X 960 --loose-anamorphic -m -x cabac=0:ref=2:me=umh:b-pyramid=none:b-adapt=2:weightb=0:trellis=0:weightp=0:vbv-maxrate=9500:vbv-bufsize=9500",
   "apple-tv-2":"-i {inputFile} -o {outputFile}.mp4  -e x264 -q 20.0 -a 1,1 -E faac,copy:ac3 -B 160,160 -6 dpl2,auto -R Auto,Auto -D 0.0,0.0 -f mp4 -4 -X 1280 --loose-anamorphic -m",
+  "fire-tv": "-i {inputFile} -o {outputFile}.mkv --encoder x264 --quality 20.0 --two-pass --aencoder ffac3,ffac3 --ab 160,448 --mixdown dpl2,5_2_lfe --arate Auto,Auto --drc 1.0,1.0 --subtitle scan,1,2,3,4 --subtitle-forced --native-language eng --format mkv --large-file --decomb --loose-anamorphic --modulus 2 --markers --x264-preset veryslow --x264-profile film --h264-profile high --h264-level 4.0",
   "normal":"-i {inputFile} -o {outputFile}.mp4  -e x264 -q 20.0 -a 1 -E faac -B 160 -6 dpl2 -R Auto -D 0.0 -f mp4 --strict-anamorphic -m -x ref=2:bframes=2:subme=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0",
   "classic":"-i {inputFile} -o {outputFile}.mp4  -b 1000 -a 1 -E faac -B 160 -6 dpl2 -R Auto -D 0.0 -f mp4"
 };
