@@ -579,7 +579,7 @@ YUI().use("json", "substitute", function (Y) {
   app.get('/add/', function (req, res) {
     addJob(path.normalize(req.query.path), req.query.profile, req.query.deleteSource, function (msg) {
       flashMsgs(req, [msg]);
-      res.redirect("home");
+      res.redirect("/");
     });
   });
 
@@ -592,7 +592,7 @@ YUI().use("json", "substitute", function (Y) {
   app.get('/readd/:jobID', function (req, res) {
     var msg = readdJob(config.jobs[req.params.jobID]);
     flashMsgs(req, [msg]);
-    res.redirect("home");
+    res.redirect("/");
   });
 
   app.get('/json/readd/:jobID', function (req, res) {
@@ -603,7 +603,7 @@ YUI().use("json", "substitute", function (Y) {
   app.get('/add-folder/', function (req, res) {
     addFolder(path.normalize(req.query.path), req.query.profile, req.query.deleteSource, function (msgs) {
       flashMsgs(req, msgs);
-      res.redirect("home");
+      res.redirect("/");
     });
   });
 
@@ -617,7 +617,7 @@ YUI().use("json", "substitute", function (Y) {
     var msg = clearCompleteJobs();
     saveConfig(function () {
       flashMsgs(req, [msg]);
-      res.redirect("home");
+      res.redirect("/");
     });
   });
 
@@ -631,7 +631,7 @@ YUI().use("json", "substitute", function (Y) {
   app.get('/remove/:jobID', function (req, res) {
     var msg = removeJob(req.params.jobID);
     flashMsgs(req, [msg]);
-    res.redirect("home");
+    res.redirect("/");
   });
 
   app.get('/json/remove/:jobID', function (req, res) {
@@ -642,7 +642,7 @@ YUI().use("json", "substitute", function (Y) {
   app.get('/move-job-to/:jobID/:newIndex', function (req, res) {
     var msg = moveJobTo(req.params.jobID, req.params.newIndex);
     flashMsgs(req, [msg]);
-    res.redirect("home");
+    res.redirect("/");
   });
 
   app.get('/json/move-job-to/:jobID/:newIndex', function (req, res) {
