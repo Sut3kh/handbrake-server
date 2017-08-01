@@ -2,8 +2,8 @@ var HandbrakeServerConfig = {}
 
 HandbrakeServerConfig.main = {};
 
-HandbrakeServerConfig.main.rootFolder 	  = "/usr/local/data/video";
-HandbrakeServerConfig.main.outputFolder  = "/usr/local/data/video/output";
+HandbrakeServerConfig.main.rootFolder = "/handbrake/input";
+HandbrakeServerConfig.main.outputFolder = "/handbrake/output";
 HandbrakeServerConfig.main.listenPort    = 8181;
 HandbrakeServerConfig.main.handbrakeExit = "Encode done!";
 
