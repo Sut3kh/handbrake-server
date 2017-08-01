@@ -4,3 +4,18 @@ Hand Brake Server
 A node based http server front end for hand break that allows queueing and processing profiles.
 
 Requires HandBrakeCLI.
+
+## Docker Dev
+
+Create docker-compose.override.yml:
+
+```
+version: '2'
+services:
+
+  handbrake:
+    volumes:
+      - .:/usr/local/handbrake-server
+```
+
+Run `docker-compose run --rm handbrake npm install`

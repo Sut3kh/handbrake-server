@@ -1,0 +1,4 @@
+# For local dev
+node_modules
+docker-compose.override.yml
+config.json
