@@ -2,11 +2,40 @@ var HandbrakeServerConfig = {}
 
 HandbrakeServerConfig.main = {};
 
+/**
+ * The directory from which videos can be encoded.
+ *
+ * @var {string}
+ */
 HandbrakeServerConfig.main.rootFolder = "/handbrake/input";
+
+/**
+ * The base output directory for encoded videos.
+ *
+ * @var {string}
+ */
 HandbrakeServerConfig.main.outputFolder = "/handbrake/output";
+
+/**
+ * The port to bind the http server to.
+ *
+ * @var {int}
+ */
 HandbrakeServerConfig.main.listenPort = 8181;
+
+/**
+ * The message from HandBrakeCLI when it has completed (to detect when a job is
+ * finished).
+ *
+ * @var {string}
+ */
 HandbrakeServerConfig.main.handbrakeExit = "Encode done!";
 
+/**
+ * Handbrake profiles.
+ *
+ * @var {object}
+ */
 HandbrakeServerConfig.profiles = {
   "high-profile":"-i {inputFile} -o {outputFile}.mp4  -e x264 -q 20.0 -a 1,1 -E copy:ac3,faac -B 160,160 -6 auto,dpl2 -R Auto,Auto -D 0.0,0.0 -f mp4 --detelecine --decomb --loose-anamorphic -m -x b-adapt=2:rc-lookahead=50",
   "android-tablet":"-i {inputFile} -o {outputFile}.m4v  -e x264 -q 20.0 -r 30 --pfr  -a 1 -E faac -B 160 -6 dpl2 -R Auto -D 0.0 -f mp4 -4 -X 1280 --loose-anamorphic -m",

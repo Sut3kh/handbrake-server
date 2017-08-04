@@ -17,11 +17,10 @@ var app = module.exports = express(),
 
 process.chdir(appPath);
 
-// Configuration
+// Configure express.
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(bodyParser.json());
-// app.use(methodOverride());
 app.use(cookieParser());
 app.use(session({
   secret: "monkey wrench",
@@ -31,7 +30,7 @@ app.use(session({
 app.use(flash());
 app.use(express.static(__dirname + '/public'));
 
-
+// Check runtime environment.
 var env = process.env.NODE_ENV || 'development';
 if (env === 'development') {
   app.use(errorHandler({
@@ -40,8 +39,9 @@ if (env === 'development') {
   }));
 }
 
-// Routes
-
+/**
+ * Begin main.
+ */
 YUI().use("json", "substitute", function (Y) {
   var HandbrakeServerConfig = require('./HandbrakeServerConfig');
   var rootFolder = HandbrakeServerConfig.main.rootFolder,
@@ -55,6 +55,16 @@ YUI().use("json", "substitute", function (Y) {
       currentJobID: null
     };
 
+  /**
+   * Job template.
+   *
+   * @param {string} spath
+   *   The path to the source file.
+   * @param {string} profileID
+   *   The id of the encoding profile to use (as per HandbrakeServerConfig).
+   *
+   * @return {Job}
+   */
   var Job = function (spath, profileID) {
     this.sourcePath = spath;
     this.profile = profileID;
@@ -74,6 +84,9 @@ YUI().use("json", "substitute", function (Y) {
     this.id = Y.stamp(this);
   };
 
+  /**
+   * Run any pending jobs and start the http server.
+   */
   var init = function () {
     loadConfig(function () {
       checkJobs();
@@ -85,10 +98,24 @@ YUI().use("json", "substitute", function (Y) {
     });
   };
 
+  /**
+   * Add a job to the queue.
+   *
+   * @param {string} path
+   *   The path of the input file.
+   * @param {string} profileID
+   *   The id of the encoding profile to use (as per HandbrakeServerConfig).
+   * @param {bool} deleteSource
+   *   If true, the source should be deleted once encoded.
+   * @param {function} cb
+   *   The callback to invoke when the job as been queued.
+   */
   var addJob = function (path, profileID, deleteSource, cb) {
     cb = cb || function () {};
     validatePath(path, function (check) {
       if (!check.success) {
+        // TODO: Surely this should invoke the callback with the result or there
+        // will be no error message if this validation fails?
         return;
       } else {
         if (!profiles[profileID]) {
@@ -100,7 +127,7 @@ YUI().use("json", "substitute", function (Y) {
         }
         var job = new Job(path, profileID);
         if (job.sourcePath.indexOf(rootFolder) !== 0) {
-          // TODO: Better error nessages. What does this mean?
+          // TODO: Why does the source have to be in the root folder?
           cb({
             success: false,
             msg: "Path not in within root path"
@@ -126,6 +153,15 @@ YUI().use("json", "substitute", function (Y) {
     });
   };
 
+  /**
+   * Requeue a job that already exists.
+   *
+   * @param {Job} job
+   *
+   * @return {object} result
+   * @return {bool} result.success
+   * @return {string} result.msg
+   */
   var readdJob = function (job) {
     var msg;
     if (job) {
@@ -158,6 +194,15 @@ YUI().use("json", "substitute", function (Y) {
     return msg;
   }
 
+  /**
+   * Remove a job from the queue.
+   *
+   * @param {string} jobID
+   *
+   * @return {object} result
+   * @return {bool} result.success
+   * @return {string} result.msg
+   */
   var removeJob = function (jobID) {
     var jobIndex = config.queue.indexOf(jobID);
     if (jobIndex < 0) {
@@ -187,6 +232,9 @@ YUI().use("json", "substitute", function (Y) {
     }
   };
 
+  /**
+   * Start the next job in the queue.
+   */
   var checkJobs = function () {
     console.info("Queue Length: " + config.queue.length);
     if(config.queue.length > 0){
@@ -198,6 +246,16 @@ YUI().use("json", "substitute", function (Y) {
     }
   };
 
+  /**
+   * Create a directory recursively.
+   *
+   * @param {string} p
+   *   The path to create.
+   * @param {int} mode
+   *   The umask to use for the directory.
+   * @param {function} f
+   *   A callback to run when the directory has been created.
+   */
   var mkdirP = function (p, mode, f) {
     var cb = f || function () {};
     if (p.charAt(0) !== '/') {
@@ -218,6 +276,11 @@ YUI().use("json", "substitute", function (Y) {
     });
   };
 
+  /**
+   * Start a job in the queue.
+   *
+   * @param {string} jobID
+   */
   var startJob = function (jobID) {
     if (!handbrake || handbrake.pid === null) {
       mkdirP(path.dirname(config.jobs[jobID].outputPath), 0777);
@@ -237,6 +300,12 @@ YUI().use("json", "substitute", function (Y) {
     }
   };
 
+  /**
+   * Update the current job based on output from HandBrakeCLI.
+   *
+   * @param {string} data
+   *   Output from HandBrakeCLI (stdin or stderr).
+   */
   var update = function (data) {
     var updateMsg = data.toString(),
       percent = parseFloat(updateMsg.match(/\d+\.\d+\ \%/)),
@@ -265,6 +334,12 @@ YUI().use("json", "substitute", function (Y) {
     }
   };
 
+  /**
+   * Handle HandBrakeCLI exit.
+   *
+   * @param {int} code
+   *   The exit code.
+   */
   var onComplete = function (code) {
     var job = config.jobs[config.currentJobID];
 
@@ -292,6 +367,18 @@ YUI().use("json", "substitute", function (Y) {
     checkJobs();
   };
 
+  /**
+   * Move a job in the queue.
+   *
+   * @param {int} jobID
+   *   The Job id.
+   * @param {int} index
+   *   The new index of the job.
+   *
+   * @return {object} result
+   * @return {bool} result.success
+   * @return {string} result.msg
+   */
   var moveJobTo = function (jobID, index) {
     index = parseInt(index) < 1 ? 1 : parseInt(index);
     index = index > config.queue.length - 1 ? config.queue.length - 1 : index;
@@ -311,6 +398,12 @@ YUI().use("json", "substitute", function (Y) {
     }
   };
 
+  /**
+   * Save this.config to ./config.json.
+   *
+   * @param {function} cb
+   *   On completion callback.
+   */
   var saveConfig = function (cb) {
     cb = cb || function () {};
     fs.writeFile("./config.json", Y.JSON.stringify(config), function (err) {
@@ -322,6 +415,12 @@ YUI().use("json", "substitute", function (Y) {
     });
   };
 
+  /**
+   * Load ./config.json into this.config (and create it if it doesn't exist).
+   *
+   * @param {function} cb
+   *   On completion callback.
+   */
   var loadConfig = function (cb) {
     cb = cb || function () {};
     fs.realpath("./config.json", function (err) {
@@ -337,7 +436,15 @@ YUI().use("json", "substitute", function (Y) {
       }
     });
   };
-  // TODO: Better error nessages.
+
+  /**
+   * Validate a filepath.
+   *
+   * @param {string} path
+   *   The path to validate.
+   * @param {function} cb
+   *   On completion callback.
+   */
   var validatePath = function (path, callback) {
     callback = callback || function () {};
     if (!path) {
@@ -368,6 +475,18 @@ YUI().use("json", "substitute", function (Y) {
     });
   };
 
+  /**
+   * Add an entire folder to the queue.
+   *
+   * @param {string} path
+   *   The path to add.
+   * @param {string} profile
+   *   The id of the encoding profile to use (as per HandbrakeServerConfig).
+   * @param {bool} deleteSource
+   *   If true, the source should be deleted once encoded.
+   * @param {function} cb
+   *   The callback to invoke when the jobs have been queued.
+   */
   var addFolder = function (path, profile, deleteSource, cb) {
     cb = cb || function () {};
     var check = validatePath(path, function (check) {
@@ -403,6 +522,9 @@ YUI().use("json", "substitute", function (Y) {
     });
   };
 
+  /**
+   * Delete all jobs from the queue.
+   */
   var clearCompleteJobs = function () {
     var deleted = 0;
     for (var jobID in config.jobs) {
@@ -420,10 +542,23 @@ YUI().use("json", "substitute", function (Y) {
     };
   }
 
+  /**
+   * Validate a video file extension.
+   *
+   * @return {bool}
+   */
   var isRightFileType = function (extn) {
     return (extn === 'mkv' || extn === 'avi' || extn === 'ts');
   };
 
+  /**
+   * Find all media files in a folder recursively (based on isRightFileType()).
+   *
+   * @param {string} path
+   *   The path to search.
+   * @param {function} cb
+   *   On completion callback.
+   */
   var findAllMediaFiles = function (path, cb) {
     cb = cb || function () {};
     var rightFiles = [];
@@ -467,6 +602,12 @@ YUI().use("json", "substitute", function (Y) {
     });
   };
 
+  /**
+   * Display all flash messages.
+   *
+   * @param {req} req
+   * @param {object}[] msgs
+   */
   var flashMsgs = function (req, msgs) {
     if (msgs.forEach) {
       msgs.forEach(function (msg) {
@@ -483,6 +624,9 @@ YUI().use("json", "substitute", function (Y) {
   /*********************** Routes **************************/
   /*********************************************************/
 
+  /**
+   * Index page.
+   */
   app.get('/', function (req, res) {
     var queuedJobs = [],
       completedJobs = [];
@@ -507,6 +651,10 @@ YUI().use("json", "substitute", function (Y) {
     });
   });
 
+  /**
+   * Returns a json list of results for a directory (?path=...), used by
+   * autocomplete.
+   */
   app.get("/json/folder-search", function (req, res) {
     var json = {
         results: []
@@ -548,6 +696,9 @@ YUI().use("json", "substitute", function (Y) {
     }
   });
 
+  /**
+   * Render the queue.
+   */
   app.get("/fragments/queue", function (req, res) {
     var queuedJobs = [];
 
@@ -562,6 +713,9 @@ YUI().use("json", "substitute", function (Y) {
     });
   });
 
+  /**
+   * Render complete jobs.
+   */
   app.get("/fragments/complete", function (req, res) {
     var completedJobs = [];
 
@@ -576,6 +730,9 @@ YUI().use("json", "substitute", function (Y) {
     });
   });
 
+  /**
+   * Add a job to the queue and redirect to the index page.
+   */
   app.get('/add/', function (req, res) {
     addJob(path.normalize(req.query.path), req.query.profile, req.query.deleteSource, function (msg) {
       flashMsgs(req, [msg]);
@@ -583,23 +740,36 @@ YUI().use("json", "substitute", function (Y) {
     });
   });
 
+  /**
+   * Add a job to the queue and return the result object.
+   */
   app.get('/json/add/', function (req, res) {
     addJob(path.normalize(req.query.path), req.query.profile, req.query.deleteSource, function (msg) {
       res.send([msg]);
     });
   });
 
+  /**
+   * Re-queue an existing job and redirect to the index page.
+   */
   app.get('/readd/:jobID', function (req, res) {
     var msg = readdJob(config.jobs[req.params.jobID]);
     flashMsgs(req, [msg]);
     res.redirect("/");
   });
 
+  /**
+   * Re-queue an existing job and return the result object.
+   */
   app.get('/json/readd/:jobID', function (req, res) {
     var msg = readdJob(config.jobs[req.params.jobID]);
     res.send([msg]);
   });
 
+  /**
+   * Add all video files in a folder to the queue and redirect to the index
+   * page.
+   */
   app.get('/add-folder/', function (req, res) {
     addFolder(path.normalize(req.query.path), req.query.profile, req.query.deleteSource, function (msgs) {
       flashMsgs(req, msgs);
@@ -607,12 +777,18 @@ YUI().use("json", "substitute", function (Y) {
     });
   });
 
+  /**
+   * Add all video files in a folder to the queue and return the result objects.
+   */
   app.get('/json/add-folder/', function (req, res) {
     addFolder(path.normalize(req.query.path), req.query.profile, req.query.deleteSource, function (msgs) {
       res.send(msgs);
     });
   });
 
+  /**
+   * Clear all completed items and redirect to the index page.
+   */
   app.get('/clear-completed/', function (req, res) {
     var msg = clearCompleteJobs();
     saveConfig(function () {
@@ -621,6 +797,9 @@ YUI().use("json", "substitute", function (Y) {
     });
   });
 
+  /**
+   * Clear all completed items and return the result object.
+   */
   app.get('/json/clear-completed/', function (req, res) {
     var msg = clearCompleteJobs();
     saveConfig(function () {
@@ -628,27 +807,40 @@ YUI().use("json", "substitute", function (Y) {
     });
   });
 
+  /**
+   * Remove a job from the queue and redirect to the index page.
+   */
   app.get('/remove/:jobID', function (req, res) {
     var msg = removeJob(req.params.jobID);
     flashMsgs(req, [msg]);
     res.redirect("/");
   });
 
+  /**
+   * Remove a job from the queue and return the result object.
+   */
   app.get('/json/remove/:jobID', function (req, res) {
     var msg = removeJob(req.params.jobID);
     res.send([msg]);
   });
 
+  /**
+   * Move a job to a new index in the queue and redirect to the index page.
+   */
   app.get('/move-job-to/:jobID/:newIndex', function (req, res) {
     var msg = moveJobTo(req.params.jobID, req.params.newIndex);
     flashMsgs(req, [msg]);
     res.redirect("/");
   });
 
+  /**
+   * Move a job to a new index in the queue and return the result object.
+   */
   app.get('/json/move-job-to/:jobID/:newIndex', function (req, res) {
     var msg = moveJobTo(req.params.jobID, req.params.newIndex);
     res.send([msg]);
   });
 
+  // Start the server.
   init();
 });
