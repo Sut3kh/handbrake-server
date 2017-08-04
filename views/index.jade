@@ -1,52 +1,55 @@
-.hand-brake
+extends ./layout.jade
+
+block body
+  .hand-brake
     h1= title
     ul.messages
-        - if(msgs.length){
-            - msgs.forEach(function(msg){
-                li #{msg}
-            - })
-        - }
+      - if(msgs.length){
+        - msgs.forEach(function(msg){
+          li #{msg}
+        - })
+      - }
         
     ul.add-jobs
-        li.add-job
-            form(action="/add/",method="get")
-                fieldset
-                    legend Add Job
-                    field
-                        label Full Path
-                        input.folder-search(name="path",value=rootFolder)
-                    field
-                        label Encoding Profile
-                        select(name="profile")
-                            - for( var profile in profiles){
-                                option(value=profile)= profile
-                            - }
-                    field
-                        label Delete Source
-                        input(name="deleteSource",type="checkbox")
-                    field
-                        input(type="submit")
-        
-        li.add-job.folder
-            form(action="/add-folder/",method="get")
-                fieldset
-                    legend Add Folder
-                    field
-                        label Full Path
-                        input.folder-search(name="path",value=rootFolder)
-                    field
-                        label Encoding Profile
-                        select(name="profile")
-                            - for( var profile in profiles){
-                                option(value=profile)= profile
-                            - }
-                    field
-                        label Delete Source
-                        input(name="deleteSource",type="checkbox")
-                    field
-                        input(type="submit")
+      li.add-job
+        form(action="/add/",method="get")
+          fieldset
+            legend Add Job
+            field
+              label Full Path
+              input.folder-search(name="path",value=rootFolder)
+            field
+              label Encoding Profile
+              select(name="profile")
+                - for( var profile in profiles){
+                  option(value=profile)= profile
+                - }
+            field
+              label Delete Source
+              input(name="deleteSource",type="checkbox")
+            field
+              input(type="submit")
+      
+      li.add-job.folder
+        form(action="/add-folder/",method="get")
+          fieldset
+            legend Add Folder
+            field
+              label Full Path
+              input.folder-search(name="path",value=rootFolder)
+            field
+              label Encoding Profile
+              select(name="profile")
+                - for( var profile in profiles){
+                  option(value=profile)= profile
+                - }
+            field
+              label Delete Source
+              input(name="deleteSource",type="checkbox")
+            field
+              input(type="submit")
     ul.jobs-queue
-        li.job-queue.ready
-            include queue
-        li.job-queue.complete
-            include complete
+      li.job-queue.ready
+        include queue
+      li.job-queue.complete
+        include complete
