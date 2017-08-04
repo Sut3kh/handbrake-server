@@ -77,3 +77,11 @@ ul ul li, ul ol li{
 .jobs-queue .job-queue:first-child, .add-jobs .add-job:first-child{
     margin-right:50px;
 }
+
+/**
+ * Autocomplete items.
+ */
+.yui3-aclist-item {
+  /* Handle long filepaths. */
+  word-wrap: break-word;
+}
